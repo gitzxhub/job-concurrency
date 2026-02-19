@@ -1,8 +1,7 @@
-name: Added Secrets
+name: Added Secrets updated
 
 on:
-  
-    push:
+  push:
 
 env:
   CONTAINER_REGISTRY: docker.io
@@ -11,24 +10,23 @@ env:
 jobs:
   docker:
     runs-on: ubuntu-latest
+
     steps:
-    - name: Docker Build
-      run: echo docker build -t ${{ env.CONTAINER_REGISTRY }}/${{ vars.DOCKER_USERNAME }}/$IMAGE_NAME:latest 
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-    - name: Docker Login
-      run: echo docker login --username=${{ vars.DOCKER_USERNAME }} --password=${{ secrets.DOCKER_PASSWORD }}
+      - name: Docker Build
+        run: docker build -t ${{ env.CONTAINER_REGISTRY }}/${{ vars.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest .
 
-    - name: Docker Publish
-      run: docker push ${{ env.CONTAINER_REGISTRY }}/${{ vars.DOCKER_USERNAME }}/$IMAGE_NAME:latest
+      - name: Docker Login
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ vars.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Docker Publish
+        run: docker push ${{ env.CONTAINER_REGISTRY }}/${{ vars.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
 
   deploy:
     needs: docker
-    concurrency:
-      group: production-deployment
-      cancel-in-progress: false
     runs-on: ubuntu-latest
     steps:
-    - name: Docker Run
-      run: |
-        echo docker run -p 8080:80 -d ${{ env.CONTAINER_REGISTRY }}/${{ vars.DOCKER_USERNAME }}/$IMAGE_NAME:latest
-        sleep 600s
+      - name: Docker Run
+        run: docker run -p 8080:80 -d ${{ env.CONTAINER_REGISTRY }}/${{ vars.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}:latest
