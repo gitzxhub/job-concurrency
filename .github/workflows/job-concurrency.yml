@@ -1,7 +1,7 @@
-name: Added Secrets updated
+name: Added Secrets updated at repo level
 
 on:
-  push:
+    push:
 
 env:
   CONTAINER_REGISTRY: docker.io
@@ -12,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Docker Build
-      run: docker build -t ${{ env.CONTAINER_REGISTRY }}/$DOCKER_USERNAME/$IMAGE_NAME:latest .
+      run: docker build -t ${{ env.CONTAINER_REGISTRY }}/$DOCKER_USERNAME/$IMAGE_NAME:latest
 
     - name: Docker Login
       run: echo docker login --username=$DOCKER_USERNAME --password=${{ secrets.DOCKER_PASSWORD }}
@@ -24,5 +24,5 @@ jobs:
     needs: docker
     runs-on: ubuntu-latest
     steps:
-      - name: Docker Run
-        run: docker run -d -p 8080:80  $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest
+    - name: Docker Run
+      run: docker run -d -p 8080:80  $CONTAINER_REGISTRY/$DOCKER_USERNAME/$IMAGE_NAME:latest
